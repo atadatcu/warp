@@ -212,7 +212,13 @@ fn write_command_sends_immediately_when_block_has_precmd_despite_inactive_line_e
     App::test((), |mut app| async move {
         let model = terminal_model();
         model.lock().prompt_only_precmd(PromptMetadata::default());
-        assert!(model.lock().block_list().active_block().has_received_precmd());
+        assert!(
+            model
+                .lock()
+                .block_list()
+                .active_block()
+                .has_received_precmd()
+        );
         assert!(!model.lock().block_list().active_block().started());
 
         let (model_events_tx, model_events_rx) = async_channel::unbounded();
@@ -240,12 +246,7 @@ fn write_command_sends_immediately_when_block_has_precmd_despite_inactive_line_e
         });
 
         let outcome = controller.update(&mut app, |controller, ctx| {
-            controller.write_command(
-                "ls",
-                ShellType::Bash,
-                CommandExecutionSource::User,
-                ctx,
-            )
+            controller.write_command("ls", ShellType::Bash, CommandExecutionSource::User, ctx)
         });
         assert_eq!(outcome, StartCommandOutcome::Accepted);
         controller.read(&app, |controller, _| {
